@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import AgoraUIKit, { PropsInterface } from "agora-react-uikit";
+import { WebSocketServer } from "ws";
+import { uuidv4 } from "uuid";
+import { SocketHandler } from "./helpers/socketHandler";
 
 const App: React.FunctionComponent = () => {
   const [videocall, setVideocall] = useState(false);
@@ -22,6 +25,8 @@ const App: React.FunctionComponent = () => {
     const [search, setSearch] = useState("");
     const [selectSong, setSelectSong] = useState(false);
     const [song, setSong] = useState("");
+    const [username, setUsername] = useState("");
+    const [userId, setUserId] = useState(uuidv4());
 
     const [videoIds, setVideoIds] = useState([]);
     const [nextPage, setNextPage] = useState("");
@@ -106,6 +111,29 @@ const App: React.FunctionComponent = () => {
       </React.Fragment>
     );
   };
+  const joinRoom = () => {
+    const chatSocket = new WebSocket(
+      process.env.REACT_APP_SOCKE + channel + "/"
+    );
+
+    chatSocket.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+    };
+    const socketHandler = new SocketHandler(chatSocket);
+    switch (data.type) {
+      case "initialize":
+        socketHandler.initialize(userId, username);
+        break;
+      case "select_video":
+    }
+
+    chatSocket.onclose = function (e) {
+      console.error("Chat socket closed unexpectedly");
+      alert("Disconnected from chat");
+    };
+
+    setVideocall(true);
+  };
   return (
     <div>
       <label>
@@ -117,7 +145,7 @@ const App: React.FunctionComponent = () => {
       {videocall ? (
         <RoomComponent />
       ) : (
-        <button onClick={() => setVideocall(true)}>Start Call</button>
+        <button onClick={() => joinRoom()}>Start Call</button>
       )}
     </div>
   );
