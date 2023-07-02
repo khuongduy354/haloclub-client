@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import AgoraUIKit, { PropsInterface } from "agora-react-uikit";
 import { WebSocketServer } from "ws";
-import { uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import { SocketHandler } from "./helpers/socketHandler";
-
 const App: React.FunctionComponent = () => {
   const [videocall, setVideocall] = useState(false);
   const [channel, setChannel] = useState("test");
@@ -34,13 +33,14 @@ const App: React.FunctionComponent = () => {
 
     const fetchYoutube = async (pageToken = "") => {
       const somekey = process.env.REACT_APP_YTB_API_KEY;
-      const url = `https://www.googleapis.com/youtube/v3/search?key=${somekey}&part=snippet&pageToken=${pageToken}&q=`;
-      let result = await fetch(url + search);
+
+      const url = `https://www.googleapis.com/youtube/v3/search?key=${somekey}&part=snippet&pageToken=${pageToken}&q=${search}`;
+      let result = await fetch(url);
       result = await result.json();
+
       const _videoIds = result.items.map(
         (item) => "https://www.youtube.com/embed/" + item.id.videoId
       );
-      console.log(_videoIds);
       setVideoIds(_videoIds);
       const _nextPage = result.nextPageToken || "";
       const _prevPage = result.prevPageToken || "";
@@ -113,19 +113,12 @@ const App: React.FunctionComponent = () => {
   };
   const joinRoom = () => {
     const chatSocket = new WebSocket(
-      process.env.REACT_APP_SOCKE + channel + "/"
+      process.env.REACT_APP_SOCKET + channel + "/"
     );
 
     chatSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
     };
-    const socketHandler = new SocketHandler(chatSocket);
-    switch (data.type) {
-      case "initialize":
-        socketHandler.initialize(userId, username);
-        break;
-      case "select_video":
-    }
 
     chatSocket.onclose = function (e) {
       console.error("Chat socket closed unexpectedly");
