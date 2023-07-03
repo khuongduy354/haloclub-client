@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { wsClient } from "./helpers/socketHandler";
 import { RoomComponent } from "./components/RoomComponent";
 import { Lobby } from "./components/Lobby";
 
@@ -17,9 +16,19 @@ const App = () => {
       </label>
 
       {videocall ? (
-        <RoomComponent />
+        <RoomComponent
+          setVideocall={setVideocall}
+          setChannel={setChannel}
+          channel={channel}
+          userId={userId}
+          username={username}
+        />
       ) : (
-        <Lobby setChannel={setChannel} setVideocall={setVideocall} />
+        <Lobby
+          setChannel={setChannel}
+          setVideocall={setVideocall}
+          setUsername={setUsername}
+        />
       )}
     </div>
   );

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { fetchYoutube } from "../helpers/youtubeHandler";
 export function SongList(props) {
+  const { setSelectSong, setSong } = props;
   const [search, setSearch] = useState("");
   const [videoIds, setVideoIds] = useState([]);
   const [nextPage, setNextPage] = useState("");
   const [prevPage, setPrevPage] = useState("");
-  const { setSelectSong, setSong } = props;
 
   const ToolPanel = () => {
     return (

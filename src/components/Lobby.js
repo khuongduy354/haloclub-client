@@ -1,12 +1,18 @@
 export function Lobby(props) {
-  const { setChannel, setVideocall } = props;
-  const joinRoom = () => {
-    setVideocall(true);
-  };
+  const { setUsername, setChannel, setVideocall } = props;
   return (
     <div>
-      <input type="text" onChange={(e) => setChannel(e.target.value)} />
-      <button onClick={() => joinRoom()}>Start Call</button>
+      <input
+        placeholder="Channel name"
+        type="text"
+        onChange={(e) => setChannel(e.target.value)}
+      />
+      <input
+        placeholder="Username"
+        type="text"
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <button onClick={() => setVideocall(true)}>Start Call</button>
     </div>
   );
 }

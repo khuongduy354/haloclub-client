@@ -1,6 +1,7 @@
 import AgoraUIKit from "agora-react-uikit";
 import React, { useEffect, useRef, useState } from "react";
 import { SongList } from "./SongList";
+import { connect_socket, wsClient } from "../helpers/socketHandler";
 
 function MainView(props) {
   const { setSelectSong, videoRef, agoraProps } = props;
@@ -9,7 +10,9 @@ function MainView(props) {
     <div>
       <button onClick={() => setSelectSong(true)}>Select Song</button>
       <div>
-        <video ref={videoRef} controls width="640" height="480" />
+        {videoRef.current != null && (
+          <video ref={videoRef} controls width="640" height="480" />
+        )}
       </div>
       <div style={styles.container}>
         <AgoraUIKit
@@ -21,11 +24,12 @@ function MainView(props) {
   );
 }
 export function RoomComponent(props) {
+  const { username, userId, setVideocall, setChannel, channel } = props;
+
   const [chatSocket, setChatsocket] = useState(null);
   const [selectSong, setSelectSong] = useState(false);
   const [song, setSong] = useState("");
 
-  const { setVideocall, setChannel, channel } = props;
   const agoraProps = {
     rtcProps: {
       appId: process.env.REACT_APP_AGORA_ID,
@@ -42,24 +46,28 @@ export function RoomComponent(props) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const fetchVideo = async () => {
-      try {
-        const response = await fetch(
-          process.env.REACT_APP_API + "/stream/video?videoId=" + song
-        );
-        const blob = await response.blob();
-        const videoUrl = URL.createObjectURL(blob);
-        videoRef.current.src = videoUrl;
-      } catch (error) {
-        console.error("Error fetching video:", error);
-      }
-    };
+    // let _chatsocket = connect_socket(username, userId, channel);
+    // setChatsocket(_chatsocket);
+    // wsClient(chatSocket, "initialize", { username, user_id: userId });
+    // alert("welcome to the room");
+  }, []);
 
-    fetchVideo();
+  useEffect(() => {
+    //handlers
   }, []);
 
   return (
-    <React.Fragment>{selectSong ? <SongList /> : <MainView />}</React.Fragment>
+    <React.Fragment>
+      {selectSong ? (
+        <SongList setSelectSong={setSelectSong} setSong={setSong} />
+      ) : (
+        <MainView
+          setSelectSong={setSelectSong}
+          agoraProps={agoraProps}
+          videoRef={videoRef}
+        />
+      )}
+    </React.Fragment>
   );
 }
 
