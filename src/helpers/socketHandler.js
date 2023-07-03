@@ -3,18 +3,14 @@ export function wsClient(ws, type, payload) {
 }
 
 export function connect_socket(username, userId, channel) {
-  const chatSocket = new WebSocket(
-    process.env.REACT_APP_SOCKET + channel + "/"
-  );
-
-  wsClient(chatSocket, "initialize", { username, user_id: userId });
-  chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-  };
-
+  let chatSocket = new WebSocket(process.env.REACT_APP_SOCKET + channel + "/");
   chatSocket.onclose = function (e) {
     console.error("Chat socket closed unexpectedly");
     alert("Disconnected from chat");
+  };
+  chatSocket.onopen = () => {
+    wsClient(chatSocket, "initialize", { username, user_id: userId });
+    alert("welcome to the room");
   };
   return chatSocket;
 }

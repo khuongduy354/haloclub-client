@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { fetchYoutube } from "../helpers/youtubeHandler";
+
 export function SongList(props) {
   const { setSelectSong, setSong } = props;
   const [search, setSearch] = useState("");
@@ -7,32 +8,37 @@ export function SongList(props) {
   const [nextPage, setNextPage] = useState("");
   const [prevPage, setPrevPage] = useState("");
 
-  const ToolPanel = () => {
+  function ToolPanel(props) {
+    const { setSelectSong, prevPage, nextPage, setSearch, search } = props;
     return (
       <div>
         <button onClick={() => setSelectSong(false)}>Back</button>
         <button
-          onClick={() => {
-            fetchYoutube(prevPage);
+          onClick={async () => {
+            await searchHandler(prevPage);
           }}
         >
           Prev
         </button>
         <button
-          onClick={() => {
-            fetchYoutube(nextPage);
+          onClick={async () => {
+            await searchHandler(nextPage);
           }}
         >
           Next
         </button>
         <input
+          value={search}
           type="text"
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search for youtube song"
+          autoFocus
+          onChange={(e) => {
+            e.preventDefault();
+            setSearch(e.target.value);
+          }}
         />
       </div>
     );
-  };
+  }
   const TheList = () => {
     return videoIds.map((videoId) => (
       <div>
@@ -63,10 +69,26 @@ export function SongList(props) {
   const selectSongHandler = (videoId) => {
     setSong(videoId);
   };
+  const searchHandler = async (pageToken = "") => {
+    const {
+      videoEmbeds,
+      nextPage: _nextPage,
+      prevPage: _prevPage,
+    } = await fetchYoutube(pageToken, search);
+    setVideoIds(videoEmbeds);
+    setNextPage(_nextPage);
+    setPrevPage(_prevPage);
+  };
   return (
     <div>
-      <ToolPanel />
-      <button onClick={() => fetchYoutube()}>Search</button>
+      <ToolPanel
+        setSelectSong={setSelectSong}
+        search={search}
+        setSearch={setSearch}
+        nextPage={nextPage}
+        prevPage={prevPage}
+      />
+      <button onClick={() => searchHandler()}>Search</button>
       <TheList />
     </div>
   );

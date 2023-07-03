@@ -4,14 +4,22 @@ import { SongList } from "./SongList";
 import { connect_socket, wsClient } from "../helpers/socketHandler";
 
 function MainView(props) {
-  const { setSelectSong, videoRef, agoraProps } = props;
+  const { song, setSelectSong, videoRef, agoraProps } = props;
   return (
     // includes: select song button, videos, and main karaoke song (if available)
     <div>
       <button onClick={() => setSelectSong(true)}>Select Song</button>
       <div>
-        {videoRef.current != null && (
-          <video ref={videoRef} controls width="640" height="480" />
+        {song != "" && (
+          <iframe
+            width="560"
+            height="315"
+            src={"https://www.youtube.com/embed/" + song}
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
         )}
       </div>
       <div style={styles.container}>
@@ -46,15 +54,24 @@ export function RoomComponent(props) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // let _chatsocket = connect_socket(username, userId, channel);
-    // setChatsocket(_chatsocket);
-    // wsClient(chatSocket, "initialize", { username, user_id: userId });
-    // alert("welcome to the room");
+    let _chatsocket = connect_socket(username, userId, channel);
+    setChatsocket(_chatsocket);
   }, []);
 
   useEffect(() => {
-    //handlers
-  }, []);
+    if (chatSocket) {
+      chatSocket.onmessage = function (e) {
+        let event_type = e.data.event_type;
+        switch (event_type) {
+          case "select_video":
+            setSong(e.data.videoId);
+            videoRef.current = "https://www.youtube.com/embed/" + song;
+            setSelectSong(false);
+            break;
+        }
+      };
+    }
+  }, [chatSocket]);
 
   return (
     <React.Fragment>
@@ -65,6 +82,7 @@ export function RoomComponent(props) {
           setSelectSong={setSelectSong}
           agoraProps={agoraProps}
           videoRef={videoRef}
+          song={song}
         />
       )}
     </React.Fragment>
