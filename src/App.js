@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AgoraUIKit, { PropsInterface } from "agora-react-uikit";
 import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from "uuid";
-import { SocketHandler } from "./helpers/socketHandler";
+import { wsClient } from "./helpers/socketHandler";
 const App: React.FunctionComponent = () => {
   const [videocall, setVideocall] = useState(false);
   const [channel, setChannel] = useState("test");
+  const [chatSocket, setChatsocket] = useState(null);
+  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState(uuidv4());
   const props: PropsInterface = {
     rtcProps: {
       appId: process.env.REACT_APP_AGORA_ID,
@@ -24,8 +27,6 @@ const App: React.FunctionComponent = () => {
     const [search, setSearch] = useState("");
     const [selectSong, setSelectSong] = useState(false);
     const [song, setSong] = useState("");
-    const [username, setUsername] = useState("");
-    const [userId, setUserId] = useState(uuidv4());
 
     const [videoIds, setVideoIds] = useState([]);
     const [nextPage, setNextPage] = useState("");
@@ -47,6 +48,29 @@ const App: React.FunctionComponent = () => {
       setNextPage(_nextPage);
       setPrevPage(_prevPage);
     };
+    const selectSongHandler = (videoId) => {
+      setSong(videoId);
+      wsClient(chatSocket, "select_video", { videoId, userId });
+    };
+
+    const videoRef = useRef(null);
+
+    useEffect(() => {
+      const fetchVideo = async () => {
+        try {
+          const response = await fetch(
+            process.env.REACT_APP_API + "/stream/video?videoId=" + song
+          );
+          const blob = await response.blob();
+          const videoUrl = URL.createObjectURL(blob);
+          videoRef.current.src = videoUrl;
+        } catch (error) {
+          console.error("Error fetching video:", error);
+        }
+      };
+
+      fetchVideo();
+    }, []);
     return (
       <React.Fragment>
         {selectSong ? (
@@ -76,7 +100,7 @@ const App: React.FunctionComponent = () => {
               <div>
                 <button
                   onClick={() => {
-                    setSong(videoId); //TODO: fetch here
+                    selectSongHandler(videoId);
                     setSelectSong(false);
                   }}
                 >
@@ -100,6 +124,9 @@ const App: React.FunctionComponent = () => {
         ) : (
           <div>
             <button onClick={() => setSelectSong(true)}>Select Song</button>
+            <div>
+              <video ref={videoRef} controls width="640" height="480" />
+            </div>
             <div style={styles.container}>
               <AgoraUIKit
                 rtcProps={props.rtcProps}
@@ -111,11 +138,14 @@ const App: React.FunctionComponent = () => {
       </React.Fragment>
     );
   };
+  const playVideo = () => {};
   const joinRoom = () => {
-    const chatSocket = new WebSocket(
+    const _chatSocket = new WebSocket(
       process.env.REACT_APP_SOCKET + channel + "/"
     );
+    setChatsocket(_chatSocket);
 
+    wsClient(chatSocket, "initialize", { username, user_id: userId });
     chatSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
     };
