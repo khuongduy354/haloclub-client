@@ -2,6 +2,23 @@ export function wsClient(ws, type, payload) {
   ws.send(JSON.stringify({ type, payload }));
 }
 
+export function connect_socket(username, userId, channel) {
+  const chatSocket = new WebSocket(
+    process.env.REACT_APP_SOCKET + channel + "/"
+  );
+
+  wsClient(chatSocket, "initialize", { username, user_id: userId });
+  chatSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+  };
+
+  chatSocket.onclose = function (e) {
+    console.error("Chat socket closed unexpectedly");
+    alert("Disconnected from chat");
+  };
+  return chatSocket;
+}
+
 // initialize {user_id, username}
 // select_video {video_id, user_id}
 // start_rating {score, user_id}
