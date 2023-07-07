@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { fetchYoutube } from "../helpers/youtubeHandler";
+import { wsClient } from "../helpers/socketHandler";
 
 export function SongList(props) {
-  const { setSelectSong, setSong } = props;
+  const { setSelectSong, setSong, ws, userId } = props;
   const [search, setSearch] = useState("");
   const [videoIds, setVideoIds] = useState([]);
   const [nextPage, setNextPage] = useState("");
@@ -68,6 +69,7 @@ export function SongList(props) {
 
   const selectSongHandler = (videoId) => {
     setSong(videoId);
+    wsClient(ws, "select_video", { video_id: videoId, user_id: userId });
   };
   const searchHandler = async (pageToken = "") => {
     const {

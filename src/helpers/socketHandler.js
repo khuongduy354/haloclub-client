@@ -4,13 +4,9 @@ export function wsClient(ws, type, payload) {
 
 export function connect_socket(username, userId, channel) {
   let chatSocket = new WebSocket(process.env.REACT_APP_SOCKET + channel + "/");
-  chatSocket.onclose = function (e) {
-    console.error("Chat socket closed unexpectedly");
-    alert("Disconnected from chat");
-  };
   chatSocket.onopen = () => {
     wsClient(chatSocket, "initialize", { username, user_id: userId });
-    alert("welcome to the room");
+    // alert("welcome to the room");
   };
   return chatSocket;
 }

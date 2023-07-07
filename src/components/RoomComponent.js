@@ -1,5 +1,5 @@
 import AgoraUIKit from "agora-react-uikit";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SongList } from "./SongList";
 import { connect_socket, wsClient } from "../helpers/socketHandler";
 
@@ -102,10 +102,11 @@ export function RoomComponent(props) {
     },
   };
 
-  const videoRef = useRef(null);
-
   useEffect(() => {
     let _chatsocket = connect_socket(username, userId, channel);
+    _chatsocket.onclose = function (e) {
+      setVideocall(false);
+    };
     setChatsocket(_chatsocket);
   }, []);
 
@@ -113,36 +114,41 @@ export function RoomComponent(props) {
     if (chatSocket) {
       chatSocket.onmessage = function (e) {
         //handlers
-        let event_type = e.data.event_type;
+        let result = JSON.parse(e.data);
+        let event_type = result.event_type;
         switch (event_type) {
+          case "initialize":
+            alert(JSON.stringify(result));
           case "select_video":
-            setSong(e.data.videoId);
-            videoRef.current = "https://www.youtube.com/embed/" + song;
-            setSinger(e.data.user_id);
-            setSingername(e.data.singer_name);
-            setSelectSong(false);
+            alert(JSON.stringify(result));
+            setSinger(result.user_id);
+            setSingername(result.singer_name);
+            if (singer == userId) {
+              setSong(result.video_id);
+              setSelectSong(false);
+            }
             break;
           case "start_rating":
             setSong("");
             setRating(true);
             break;
           case "rating":
-            alert(`${username} rated ${singerName} ${e.data.score} points!`);
+            alert(`${username} rated ${singerName} ${result.score} points!`);
             break;
           case "finish_rating":
             setRating(false);
-            alert(`${singerName} got ${e.data.total_scores}, Congrats!`);
+            alert(`${singerName} got ${result.total_scores}, Congrats!`);
 
-            let next = e.data.next_singer;
+            let next = result.next_singer;
             setSinger(next.user_id);
             setSingername(next.username);
             setSong("");
             alert("Next singer is " + next.username);
             break;
           case "finish_game":
-            alert(`${(e.data.winner, username)} is the winner`);
+            alert(`${(result.winner, username)} is the winner`);
             alert(
-              `${(e.data.winner, username)} got a total of ${e.data.score}`
+              `${(result.winner, username)} got a total of ${result.score}`
             );
             resetToNewRound();
             break;
@@ -154,12 +160,16 @@ export function RoomComponent(props) {
   return (
     <React.Fragment>
       {selectSong ? (
-        <SongList setSelectSong={setSelectSong} setSong={setSong} />
+        <SongList
+          ws={chatSocket}
+          setSelectSong={setSelectSong}
+          setSong={setSong}
+          userId={userId}
+        />
       ) : (
         <MainView
           setSelectSong={setSelectSong}
           agoraProps={agoraProps}
-          videoRef={videoRef}
           song={song}
           userId={userId}
           singer={singer}
