@@ -69,7 +69,7 @@ export function SongList(props) {
 
   const selectSongHandler = (videoId) => {
     setSong(videoId);
-    // wsClient(ws, "select_video", { video_id: videoId, user_id: userId });
+    wsClient(ws, "select_video", { video_id: videoId, user_id: userId });
   };
   const searchHandler = async (pageToken = "") => {
     const {

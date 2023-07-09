@@ -121,13 +121,13 @@ export function RoomComponent(props) {
             alert(`${result.new_user.username} joined the room`);
             break;
           case "select_video":
+            alert(`${result.singer_name} selected the song!`);
             setSinger(result.user_id);
             setSingername(result.singer_name);
             if (singer == userId) {
               setSong(result.video_id);
               setSelectSong(false);
             }
-            alert(`${result.singer_name} selected the song!`);
             break;
           case "start_rating":
             setSong("");
