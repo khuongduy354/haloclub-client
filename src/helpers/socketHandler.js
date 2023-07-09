@@ -25,7 +25,7 @@ export function connect_socket(username, userId, channel) {
 // }
 
 //response
-// initialize {event_type:"initialize", "userList": array[userItem]}
+// initialize {event_type:"initialize", "userList": array[userItem],new_user:userItem}
 // select_video {event_type:"select_video",video_id, user_id,singer_name}
 // start_rating {event_type:"start_rating", user_id,}
 // rating {event_type:"rating", user_id, rate_for,rated_score}

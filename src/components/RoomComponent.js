@@ -118,9 +118,8 @@ export function RoomComponent(props) {
         let event_type = result.event_type;
         switch (event_type) {
           case "initialize":
-            alert(JSON.stringify(result));
+            alert(`${result.new_user.username} joined the room`);
           case "select_video":
-            alert(JSON.stringify(result));
             setSinger(result.user_id);
             setSingername(result.singer_name);
             if (singer == userId) {
