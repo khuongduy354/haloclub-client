@@ -4,8 +4,16 @@ import { SongList } from "./SongList";
 import { connect_socket, wsClient } from "../helpers/socketHandler";
 
 function MainView(props) {
-  const { song, setSelectSong, agoraProps, userId, singer, rating, setRating } =
-    props;
+  const {
+    song,
+    setSelectSong,
+    agoraProps,
+    userId,
+    singer,
+    rating,
+    setRating,
+    chatSocket,
+  } = props;
   const [rated, setRated] = useState(false);
   const [ratedScore, setRatedscore] = useState(0);
   return (
@@ -27,7 +35,10 @@ function MainView(props) {
             ></iframe>
             <button
               onClick={() => {
-                wsClient.send("start_rating", { score: 0, user_id: userId });
+                wsClient(chatSocket, "start_rating", {
+                  score: 0,
+                  user_id: userId,
+                });
               }}
             >
               Finish Singing
@@ -37,13 +48,14 @@ function MainView(props) {
         {rating && (
           <div>
             <input
+              type="number"
               onChange={(e) => {
                 setRatedscore(e.target.value);
               }}
             />
             <button
               onClick={() => {
-                wsClient.send("start_rating", {
+                wsClient(chatSocket, "start_rating", {
                   user_id: userId,
                   score: ratedScore,
                 });
@@ -52,13 +64,13 @@ function MainView(props) {
             >
               Send score
             </button>
-            <button
+            {/* <button
               onClick={() => {
                 setRating(false);
               }}
             >
               Back
-            </button>
+            </button> */}
           </div>
         )}
       </div>
@@ -130,11 +142,18 @@ export function RoomComponent(props) {
             }
             break;
           case "start_rating":
+            if (result.user_id != userId) {
+              alert(
+                `${result.singer_name} finished singing, let start rating!`
+              );
+              setRating(true);
+            }
             setSong("");
-            setRating(true);
             break;
           case "rating":
-            alert(`${username} rated ${singerName} ${result.score} points!`);
+            alert(
+              `${username} rated ${result.rate_for.username} ${result.rated_score} points!`
+            );
             break;
           case "finish_rating":
             setRating(false);
@@ -171,6 +190,7 @@ export function RoomComponent(props) {
         <MainView
           setSelectSong={setSelectSong}
           agoraProps={agoraProps}
+          chatSocket={chatSocket}
           song={song}
           userId={userId}
           singer={singer}
