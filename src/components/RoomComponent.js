@@ -119,6 +119,7 @@ export function RoomComponent(props) {
         switch (event_type) {
           case "initialize":
             alert(`${result.new_user.username} joined the room`);
+            break;
           case "select_video":
             setSinger(result.user_id);
             setSingername(result.singer_name);
@@ -126,6 +127,7 @@ export function RoomComponent(props) {
               setSong(result.video_id);
               setSelectSong(false);
             }
+            alert(`${result.singer_name} selected the song!`);
             break;
           case "start_rating":
             setSong("");
