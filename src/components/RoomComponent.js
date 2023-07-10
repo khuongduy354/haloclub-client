@@ -71,6 +71,17 @@ function MainView(props) {
             >
               Back
             </button> */}
+            {singer == userId && (
+              <button
+                onClick={() =>
+                  wsClient(chatSocket, "finish_rating", {
+                    user_id: userId,
+                  })
+                }
+              >
+                Finish rating
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -86,6 +97,7 @@ function MainView(props) {
 export function RoomComponent(props) {
   const { username, userId, setVideocall, setChannel, channel } = props;
 
+  const [ratingCount, setRatingcount] = useState(0);
   const [rating, setRating] = useState(false);
   const [chatSocket, setChatsocket] = useState(null);
   const [selectSong, setSelectSong] = useState(false);
@@ -142,18 +154,15 @@ export function RoomComponent(props) {
             }
             break;
           case "start_rating":
-            if (result.user_id != userId) {
-              alert(
-                `${result.singer_name} finished singing, let start rating!`
-              );
-              setRating(true);
-            }
+            alert(`${result.singer_name} finished singing, let start rating!`);
+            setRating(true);
             setSong("");
             break;
           case "rating":
             alert(
               `${username} rated ${result.rate_for.username} ${result.rated_score} points!`
             );
+            setRatingcount(ratingCount + 1);
             break;
           case "finish_rating":
             setRating(false);
