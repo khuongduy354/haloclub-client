@@ -29,5 +29,5 @@ export function connect_socket(username, userId, channel) {
 // select_video {event_type:"select_video",video_id, user_id,singer_name}
 // start_rating {event_type:"start_rating", user_id,singer_name}
 // rating {event_type:"rating", user_id, rate_for,rated_score}
-// finish_rating {event_type:"finish_rating", user_id,next_singer,total_scores}
-// finish_game {event_type:"finish_game", winner,quotes,userList:array[userItem]}
+// finish_rating {event_type:"finish_rating", user_id,next_singer,current_singer}
+// finish_game {event_type:"finish_game", winner,quote,userList:array[userItem]}

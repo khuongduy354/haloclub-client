@@ -166,7 +166,9 @@ export function RoomComponent(props) {
             break;
           case "finish_rating":
             setRating(false);
-            alert(`${singerName} got ${result.total_scores}, Congrats!`);
+            alert(
+              `${result.current_singer.username} got ${result.current_singer.score} points!`
+            );
 
             let next = result.next_singer;
             setSinger(next.user_id);
@@ -175,9 +177,9 @@ export function RoomComponent(props) {
             alert("Next singer is " + next.username);
             break;
           case "finish_game":
-            alert(`${(result.winner, username)} is the winner`);
+            alert(`${result.winner.username} is the winner`);
             alert(
-              `${(result.winner, username)} got a total of ${result.score}`
+              `${result.winner.username} got a total of ${result.winner.score}`
             );
             resetToNewRound();
             break;
